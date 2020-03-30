@@ -11,6 +11,9 @@ def is_key(_value):
 class DomainModel(object):
     """
     Domain Model class.
+
+    It persists Python dictionaries with an 'entity_id' to Redis Hashes, Lists and Sets.
+    Currently only 1 level of nesting is supported.
     """
     redis = None
 
@@ -27,22 +30,22 @@ class DomainModel(object):
         :param _topic: The type of entity.
         :param _values: The entity properties.
         """
-        self.redis.sadd('{}_ids'.format(_topic), _values['id'])
+        self.redis.sadd('{}_ids'.format(_topic), _values['entity_id'])
         for k, v in _values.items():
             if isinstance(v, list):
-                lid = '{}_{}:{}'.format(_topic, k, _values['id'])
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, lid)
+                lid = '{}_{}:{}'.format(_topic, k, _values['entity_id'])
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, lid)
                 self.redis.rpush(lid, *v)
             elif isinstance(v, set):
-                sid = '{}_{}:{}'.format(_topic, k, _values['id'])
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, sid)
+                sid = '{}_{}:{}'.format(_topic, k, _values['entity_id'])
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, sid)
                 self.redis.sadd(sid, *v)
             elif isinstance(v, dict):
-                did = '{}_{}:{}'.format(_topic, k, _values['id'])
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, did)
+                did = '{}_{}:{}'.format(_topic, k, _values['entity_id'])
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, did)
                 self.redis.hmset(did, v)
             else:
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, v)
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, v)
 
     def retrieve(self, _topic):
         """
@@ -76,22 +79,22 @@ class DomainModel(object):
         """
         for k, v in _values.items():
             if isinstance(v, list):
-                lid = '{}_{}:{}'.format(_topic, k, _values['id'])
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, lid)
+                lid = '{}_{}:{}'.format(_topic, k, _values['entity_id'])
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, lid)
                 self.redis.delete(lid)
                 self.redis.rpush(lid, *v)
             elif isinstance(v, set):
-                sid = '{}_{}:{}'.format(_topic, k, _values['id'])
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, sid)
+                sid = '{}_{}:{}'.format(_topic, k, _values['entity_id'])
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, sid)
                 self.redis.delete(sid)
                 self.redis.sadd(sid, *v)
             elif isinstance(v, dict):
-                did = '{}_{}:{}'.format(_topic, k, _values['id'])
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, did)
+                did = '{}_{}:{}'.format(_topic, k, _values['entity_id'])
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, did)
                 self.redis.delete(did)
                 self.redis.hmset(did, *v)
             else:
-                self.redis.hset('{}_entity:{}'.format(_topic, _values['id']), k, v)
+                self.redis.hset('{}_entity:{}'.format(_topic, _values['entity_id']), k, v)
 
     def delete(self, _topic, _values):
         """
@@ -100,11 +103,11 @@ class DomainModel(object):
         :param _topic: The type of entity.
         :param _values: The entity properties.
         """
-        self.redis.srem('{}_ids'.format(_topic), 1, _values['id'])
-        self.redis.delete('{}_entity:{}'.format(_topic, _values['id']))
+        self.redis.srem('{}_ids'.format(_topic), 1, _values['entity_id'])
+        self.redis.delete('{}_entity:{}'.format(_topic, _values['entity_id']))
         for k, v in _values.items():
             if isinstance(v, (list, set, dict)):
-                self.redis.delete('{}_{}:{}'.format(_topic, k, _values['id']))
+                self.redis.delete('{}_{}:{}'.format(_topic, k, _values['entity_id']))
 
     def exists(self, _topic):
         """
