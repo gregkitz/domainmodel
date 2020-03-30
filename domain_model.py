@@ -109,11 +109,13 @@ class DomainModel(object):
             if isinstance(v, (list, set, dict)):
                 self.redis.delete('{}_{}:{}'.format(_topic, k, _values['entity_id']))
 
-    def exists(self, _topic):
+    def exists(self, _topic, _id=None):
         """
         Check if an entity exists.
 
         :param _topic: The type of entity.
-        :return: True iff an entity exists, else False.
+        :param _id: An optional entity ID.
+        :return: True iff an entity exists.
         """
-        return self.redis.exists('{}_ids'.format(_topic))
+        if self.redis.exists('{}_ids'.format(_topic)):
+            return True if not _id else self.redis.sismember('{}_ids'.format(_topic), _id)
