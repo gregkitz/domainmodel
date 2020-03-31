@@ -44,7 +44,7 @@ class DomainModelTestCase(unittest.TestCase):
 
         m1 = {
             _id: {
-                'id': _id,
+                'entity_id': _id,
                 'name': generate_string(10),
                 'age': str(generate_int(100)),
                 'balance': str(generate_float(1000)),
@@ -65,7 +65,7 @@ class DomainModelTestCase(unittest.TestCase):
 
         m1 = {
             _id: {
-                'id': _id,
+                'entity_id': _id,
                 'name': generate_string(10),
                 'age': str(generate_int(100)),
                 'balance': str(generate_float(1000)),
@@ -89,11 +89,11 @@ class DomainModelTestCase(unittest.TestCase):
 
         m1 = {
             _id: {
-                'id': _id,
+                'entity_id': _id,
                 'name': generate_string(10),
                 'age': str(generate_int(100)),
-                'balance': str(generate_float(1000)),
-                'friends': {str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())}
+                'balance': 0,
+                'friends': {str(uuid.uuid4()), str(uuid.uuid4()), str(uuid.uuid4())},
             }
         }
 
@@ -103,4 +103,4 @@ class DomainModelTestCase(unittest.TestCase):
         self.domain_model.delete(t, m1[_id])
 
         m2 = self.domain_model.exists(t)
-        self.assertIs(0, m2)
+        self.assertIs(False, m2)

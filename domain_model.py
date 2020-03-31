@@ -115,7 +115,8 @@ class DomainModel(object):
 
         :param _topic: The type of entity.
         :param _id: An optional entity ID.
-        :return: True iff an entity exists.
+        :return: True iff an entity exists, False otherwise.
         """
         if self.redis.exists('{}_ids'.format(_topic)):
             return True if not _id else self.redis.sismember('{}_ids'.format(_topic), _id)
+        return False
