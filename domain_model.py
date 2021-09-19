@@ -67,7 +67,7 @@ class DomainModel(object):
                     elif rtype == 'hash':
                         result[eid][k] = self.redis.hgetall(v)
                     else:
-                        raise ValueError('unknown redis type: {}'.format(rtype))
+                        raise ValueError('unknown redis type: {} key is: {}, value is {}'.format(rtype, k, v))
         return result
 
     def update(self, _topic, _values):
